@@ -192,24 +192,19 @@ class Simulation(object):
             # Should return 2D array with columns:
             # [data types, muon #, Angle [deg], energy [GeV], entry [mm], exit [mm]]
             MuonData = ReadMuonsFromCSV(MuonFile)
-            '''
+            #print(MuonData) 
+
             #to use once we have real muon inputs
             Points = MuonData[4]
             ExitPoints = MuonData[5]
             Angle = MuonData[2]
             Energy = MuonData[3]
-            #shift the positions over
-            Points = Points + shift_origin
-            ExitPoints = ExitPoints + shift_origin
-            #load all data into our array to pass to the photon generator
-            ExtraData=np.array([Points, ExitPoints, Angle, Energy])
-            '''
 
             #just data for testing with right now
-            Points = np.array([[0,0,6650.0], [3000,3000,4000], [-3500, 0, 0]])
-            ExitPoints = np.array([[0,0,-6650.0], [3000,3000,-5000], [4500, 0, 0]])
-            Angle = np.array([10, 12, 15])
-            Energy = np.array([1.0, 1.5, 2.5])
+            #Points = np.array([[0,0,6650.0], [3000,3000,4000], [-3500, 0, 0]])
+            #ExitPoints = np.array([[0,0,-6650.0], [3000,3000,-5000], [4500, 0, 0]])
+            #Angle = np.array([10, 12, 15])
+            #Energy = np.array([1.0, 1.5, 2.5])
 
             #anything only 1D is going to need padding to be able to go into an array with the 3D ones
             Angle = [[a,0,0] for a in Angle]
@@ -224,6 +219,8 @@ class Simulation(object):
             Points = Points + shift_origin
             ExitPoints = ExitPoints + shift_origin
             
+            print(Points)
+
             #load all data into our array to pass to the photon generator
             ExtraData=np.array([Points, ExitPoints, Angle, Energy])
             Direction = [None]*len(Points)
