@@ -2,6 +2,7 @@ import chroma, random, datetime, os, sys, time, scipy.spatial
 
 import Photons, Output
 from Utilities import *
+from MuonGeneration2 import MuonGen, ReadMuonsFromCSV2
 import PlotFunctions as Plot
 
 import numpy as np
@@ -225,6 +226,44 @@ class Simulation(object):
             ExtraData=np.array([Points, ExitPoints, Angle, Energy])
             Direction = [None]*len(Points)
 
+            
+        elif 'MuonGen' in self.Yaml['Simulation']['PhotonLocation']:
+            numOfMuons = self.Yaml['Simulation']['NumberOfSources']
+            file = MuonGen.MuonGen2(numOfMuons, 'Output.csv')
+            MuonData = ReadMuonsFromCSV2(MuonFile)
+            #print(MuonData) 
+
+            #to use once we have real muon inputs
+            Points = MuonData[3]
+            ExitPoints = MuonData[4]
+            Angle = MuonData[1]
+            Energy = MuonData[2]
+
+            #just data for testing with right now
+            #Points = np.array([[0,0,6650.0], [3000,3000,4000], [-3500, 0, 0]])
+            #ExitPoints = np.array([[0,0,-6650.0], [3000,3000,-5000], [4500, 0, 0]])
+            #Angle = np.array([10, 12, 15])
+            #Energy = np.array([1.0, 1.5, 2.5])
+
+            #anything only 1D is going to need padding to be able to go into an array with the 3D ones
+            Angle = [[a,0,0] for a in Angle]
+            Energy = [[E,0,0] for E in Energy]
+
+            #Shift the positions as the input will be wrt to the WT center and
+            #not the chroma weighted center which we need here
+            GeoShift = self.Detector.GeoData['Center']
+            WT_Height = 13300.0 #total height of the WT
+            shift_origin = np.array([GeoShift[0], GeoShift[1], GeoShift[2] + WT_Height/2])
+            
+            Points = Points + shift_origin
+            ExitPoints = ExitPoints + shift_origin
+            
+            print(Points)
+
+            #load all data into our array to pass to the photon generator
+            ExtraData=np.array([Points, ExitPoints, Angle, Energy])
+            Direction = [None]*len(Points) 
+            
         else:
             print("You need to specify a source location type.")
             sys.exit()
