@@ -1,0 +1,100 @@
+###########################################
+#           nEXO OD Yaml Card             #
+#              June 8, 2021               #
+###########################################
+
+Version: 2021 LRetty V1 #Arbitrary?
+
+ChromaPath: '/gpfs/slac/staas/fs1/g/exo/exo_data8/exo_data/users/lretty/chromasim/chroma-simulation/' #Absolute path to chroma-simulation directory
+
+ChromaImage: '/gpfs/slac/staas/fs1/g/exo/exo_data8/exo_data/users/lretty/chromasim/Chroma.sif' #Absolute path to chroma singularity image (sif)
+
+Detector:
+  DetectorName: nEXO_OD
+  PathToDetector: '/gpfs/slac/staas/fs1/g/exo/exo_data8/exo_data/users/lretty/chromasim/chroma-simulation/Geometry/OD/OD_fullAbs_testPMT/'  #Absolute path to stl files
+  OpticalProperties: '/gpfs/slac/staas/fs1/g/exo/exo_data8/exo_data/users/lretty/chromasim/chroma-simulation/Yaml/OD/OpticalProperties_OD.yaml' #Absolute path to yaml card of optical properties
+  CacheName: nEXO_OD                            #where to store geometry for re-running to save time
+  #ReflectivityData: '/gpfs/slac/staas/fs1/g/exo/exo_data8/exo_data/users/lretty/chromasim/chroma-simulation/Data/VUV4/ReflectivityTransmittance_vs_AOI-VUV4-UA.csv'                                        #Location of reflectivity data for SiPMs
+  Save: True                                    #save geometry?
+  BuildDetector: FromSTL                        #other options are FromMesh, FromCache (if stored in Cache above)
+  Center: OuterCryostat                         #coordinate system defining STL
+  Detector: PMT_Glassware                       #Detector's detector defines which STL has the detecting surface
+  DetectorOrientation: CylinderBarrel           #Orientation of Photodetectors [CylinderBarrel, Cylinder Cap] (radial or vertical?)
+                        
+  FiducialVolume:                               #Defining the fiducial volume of the detector
+    Top: Supports                               #STl file that extends furthest into z direction
+    Bottom: WaterTank                           #STL file that extends the furthest into the -z direction
+    Radius: WaterTank                           #STL file that extends furthest into radial direction
+  FiducialHeightCut: 0.0                        #Defines standoff in the z direction with respect to the Top and Bottom in the Fiducial Volume
+  FiducialRadialCut: 0.0                        #Defines standoff in radial direction w.r.t. z-axis
+  SkinVolume:                                   #choose components to define skin volume, max and min z will be same as for fiducial volume.
+    InnerRadius: WaterTank                      #Component that defines min r value
+    OuterRadius: WaterTank                      #component that defines max r value
+    Top: Supports                               #Component that defines max z position
+    Bottom: WaterTank                           #Component that defines min z position
+  SkinStandoffTop: 0.0                          #Standoff in z direction w.r.t. Fiducial Vol
+  SkinStandoffBottom: 0.0                       #Standoff in z direction w.r.t. Fiducial Vol
+  Rotation: None
+
+#OPTIONAL???
+
+#ChannelID: '/gpfs/slac/staas/fs1/g/exo/exo_data8/exo_data/users/rross/chromasim/chroma-simulation/Data/nEXO_SiPM_ChannelID_2019.csv'
+
+
+####END OF DETECTOR####
+
+Simulation:
+  Generator: MuonGen                            #CherenkovSimple; [0,0,-1]; 4000
+  NumberOfPhotons: 4000
+  NumberOfSources: 10 
+  NumberOfRuns: 1
+  PropagationMode: Total                         #[Total, Step] define if only photon origin and last photon location should be saved, or if step by step information is required
+  PhotonLocation: MuonFile               #Define where events should be generated: [Center, UniformFV, UniformSkin, UniformXenon, R=, Z=]
+  OutputPath: '/gpfs/slac/staas/fs1/g/exo/exo_data8/exo_data/users/lretty/chroma_data/'
+  OutputFilename: Here_We_Go
+  OutputFiletype: HDF5                          #Only option
+  SaveVariables: ['NumDetected', 'IncidentAngles', 'Flags', 'LastHitTriangle', 'FinalPosition', 'InitialPosition', 'DetectedPos', 'DetectorHit']       #Many options
+
+
+####END OF SIMULATION SECTION####
+
+# Definitions of surface properties based on values defined in OpticalProperties
+# # Each component need to be assigned an inner and outer material.
+# # The inner material 'Inside' always has only one component
+# # The outer material 'Outside', 'Surface' and 'Color' can have multiple entries depending on the geometry (i.e. Quartz facing LXe on one side and Silicon on the other)
+# # If either one of 'Outside', 'Surface' and 'Color' have 3 entries all have to have 3 entries
+# # The orientation of the 3 properties is given according to DetectorOrientation
+# # For CylinderBarrel, 1st entry is facing radially inward, the 2nd radially outward and the 3rd perpendicular to the radial direction
+# # Colors are defined in Detector.py
+
+
+Components:
+  WaterTank:
+    Inside: [FullAbsorb]
+    Outside: [Water]
+    Surface: [ReflectiveFoil]
+    Color: [Blue]
+    #Rotation:   # defines repeated addition of the same mesh with [axis of rotation, number of copies]
+    #Displacement:  # defines repeated addition of the same mesh with [axis of displacement, number of copies, spacing]
+
+  Supports:
+    Inside: [FullAbsorb]
+    Outside: [Water]
+    Surface: [StainlessSteel]
+    Color: [Grey]
+    #Rotation:
+    #Displacement:
+
+  OuterCryostat:
+    Inside: [FullAbsorb]
+    Outside: [Water]
+    Surface: [OC_surface]
+    Color: [Gold]
+    #Rotation:
+    #Displacement
+
+  PMT_Glassware:
+    Inside: [Vacuum]
+    Outside: [Water]
+    Surface: [Detecting] #BorosilicateGlass]
+    Color: [Red] 
