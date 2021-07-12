@@ -264,6 +264,7 @@ class Simulation(object):
 
             #load all data into our array to pass to the photon generator
             ExtraData=np.array([Points, ExitPoints, Angle, Energy])
+            print(ExtraData)
             Direction = [None]*len(Points) 
             
         else:
